@@ -1,87 +1,59 @@
-# 🧠 Interview Voice Agent (AI Copilot for Mock Interviews)
+# Interview Voice Agent
 
-A ChatGPT-like interview assistant with **resume grounding + bilingual support + voice input**, designed to help candidates generate **interview-ready answers in real time**.
+Resume-grounded, bilingual (EN + 中文) mock interview copilot with browser voice input and streaming responses.
 
----
+## Highlights
 
-## ✨ Features
+- Voice input via Web Speech API (works best on Chrome)
+- Resume grounding from `resume.json` (reduces hallucinated experience)
+- Streaming responses (ChatGPT-like)
+- Session memory (`/new-session` + `/chat/stream`)
+- Bilingual output format: English answer + Chinese explanation
 
-- 🎤 **Voice Input (Chinese + English)**
-  - Browser-based speech recognition
-  - Supports Chinese, English, and mixed input
+## Demo
 
-- 🧠 **Resume Injection (Grounded AI)**
-  - Answers are generated based on structured resume data
-  - Prevents hallucinated experience
-  - Produces realistic, personalized responses
+- Open `http://127.0.0.1:8000` after starting the server
+- Type a question or click the voice button to speak
 
-- 🌍 **Bilingual Output**
-  - Spoken English (interview-ready)
-  - Chinese explanation (for clarity)
+## Architecture
 
-- ⚡ **Streaming Responses**
-  - Token-level streaming (ChatGPT-like experience)
+```mermaid
+flowchart TD
+  UI[Browser UI\nText + Voice] -->|Web Speech API| ASR[Speech Recognition]
+  UI -->|HTTP| API[FastAPI]
+  API -->|load| RESUME[resume.json]
+  API -->|prompt + resume grounding| LLM[OpenAI Chat Completions\n(streaming)]
+  LLM -->|tokens| API -->|StreamingResponse| UI
+```
 
-- 💬 **Conversation Memory**
-  - Maintains context within session
-  - Supports follow-up questions
+## Quickstart
 
-- 🔄 **Session Management**
-  - Reset / clear chat
-  - New session creation
+### Prerequisites
 
----
+- Python 3.10+
+- An OpenAI API key in `OPENAI_API_KEY`
 
-## 🏗️ Architecture
-
-
-Browser (Voice / Text)
-↓
-Speech Recognition (Web API)
-↓
-FastAPI Backend
-↓
-Resume Injection + Prompt Engineering
-↓
-OpenAI LLM (Streaming)
-↓
-Real-time Response Rendering
-
-
----
-
-## 🛠️ Local Setup (Required)
-
-### 1️⃣ Clone the repository
+### Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/interview-agent.git
-cd interview-agent
-2️⃣ Create Python environment (recommended)
-python3 -m venv venv
-source venv/bin/activate   # Mac/Linux
-3️⃣ Install dependencies
-pip install -r requirements.txt
-4️⃣ Configure OpenAI API Key
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirement.txt
+```
 
-You need an API key from OpenAI.
+### Configure API key
 
-Option A: Environment variable (recommended)
-export OPENAI_API_KEY=your_api_key
-Option B: .env file
+```bash
+export OPENAI_API_KEY="your_api_key"
+```
 
-Create a .env file:
+### Prepare `resume.json`
 
-OPENAI_API_KEY=your_api_key
-
-⚠️ Do NOT commit this file to GitHub
-
-5️⃣ Prepare resume.json (IMPORTANT)
-
-The system uses a structured resume file.
+This file is loaded on startup and injected into the system prompt.
 
 Example:
 
+```json
 {
   "name": "Your Name",
   "skills": ["Java", "Kubernetes"],
@@ -94,114 +66,54 @@ Example:
     }
   ]
 }
+```
 
-👉 This is used to ground the LLM responses
+### Run
 
-▶️ Run the Project
+```bash
 uvicorn main:app --reload
+```
 
-Open browser:
+Then open `http://127.0.0.1:8000`.
 
-http://127.0.0.1:8000
-🎤 How to Use
-🧾 Text Input
-Type your question
-Press Enter or click Send
-🎤 Voice Input
-Click 🎤 Voice
-Speak (Chinese / English / mixed)
-Click Stop
-Input auto-fills and sends
-🔄 Clear Chat
-Click Clear
-Resets:
-UI messages
-backend session
-conversation memory
-🧠 Prompt Strategy
+## How it works
 
-This project uses advanced prompt engineering:
+- Backend: `main.py` loads `resume.json`, builds a bilingual system prompt, and streams model tokens back to the browser.
+- Frontend: `static/index.html` provides a minimal chat UI + voice recognition + optional TTS.
 
-Resume-grounded responses
-Bilingual output format
-Anti-hallucination rules
-Fallback when uncertain
+## API
 
-Example:
+- `GET /new-session` → returns `{ "session_id": "..." }`
+- `POST /chat/stream` → streams plain text tokens
 
+Request body:
+
+```json
+{ "session_id": "...", "message": "..." }
+```
+
+## Output format (model)
+
+```text
 [Keywords]
-- Kubernetes
-- HPA
+- ...
 
 [Answer - English]
-In Kubernetes, HPA automatically scales pods...
+...
 
 [Answer - 中文]
-Kubernetes 的 HPA 是一种自动扩缩容机制...
-⚙️ Tech Stack
+...
+```
 
-Backend
+## Notes
 
-FastAPI
-Python
-OpenAI API
+- Chrome has the most reliable Web Speech support; ensure mic permissions are granted.
+- If you want better mixed-language recognition, adjust `recog.lang` in `static/index.html`.
+- Keep `resume.json` reasonably sized to avoid prompt bloat.
 
-Frontend
+## Roadmap
 
-HTML / JavaScript
-Web Speech API
-
-Concepts
-
-Streaming responses
-Prompt engineering
-Session-based memory
-Resume grounding
-🧩 Use Cases
-Mock interview practice
-Project explanation training
-System design Q&A
-Bilingual interview prep
-⚠️ Notes
-Use Chrome for best voice recognition
-API Key is required
-resume.json should not be too large (< ~2000 tokens)
-🔮 Future Improvements
-Real-time streaming voice (no stop required)
-TTS (AI voice output)
-Multi-user authentication
-Persistent chat history (Redis / DB)
-AI interviewer mode
-🧠 Key Learnings
-Prompt design strongly controls LLM behavior
-Resume grounding reduces hallucination
-Streaming improves user experience significantly
-Voice UX requires latency optimization
-👤 Author
-
-Zia Wang
-
-Backend / Distributed Systems / AI Engineer
-Focus: LLM + Kubernetes + Observability + Data Systems
-
-⭐ If you like this project
-
-Give it a star ⭐
-
-
----
-
-# 🔥 最后建议（很重要）
-
-你 push 之前记得：
-
-- 把 `YOUR_USERNAME` 改掉
-- 确认 `.env` 没上传
-- 可以加一张截图（更加分）
-
----
-
-如果你愿意，我可以帮你再升级一个版本：
-
-👉 **“面试杀手级 README（带项目故事 + impact + metrics）”**  
-👉 或帮你写一段直接放简历里的 project description 👍
+- Real-time voice streaming (no manual stop)
+- Better UI/UX (chat bubbles, markdown rendering)
+- Persistent chat history (Redis/DB)
+- Multi-user auth + interview mode
