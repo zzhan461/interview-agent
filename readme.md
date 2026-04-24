@@ -44,11 +44,12 @@ This project helps you practice mock interviews by generating interview-ready an
 
 ```mermaid
 flowchart TD
-  UI[Browser UI\nText + Voice] -->|Web Speech API| ASR[Speech Recognition]
-  UI -->|HTTP| API[FastAPI]
-  API -->|load| RESUME[resume.json]
-  API -->|prompt + resume grounding| LLM[OpenAI Chat Completions\n(streaming)]
-  LLM -->|tokens| API -->|StreamingResponse| UI
+  UI["Browser UI<br/>Text + Voice"] -->|"Web Speech API"| ASR["Speech Recognition"]
+  UI -->|"HTTP"| API["FastAPI"]
+  API -->|"load"| RESUME["resume.json"]
+  API -->|"prompt + resume grounding"| LLM["OpenAI Chat Completions<br/>streaming"]
+  LLM -->|"tokens"| API
+  API -->|"StreamingResponse"| UI
 ```
 
 ## Quickstart
