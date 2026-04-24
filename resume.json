@@ -1,0 +1,175 @@
+{
+  "name": "Zia Wang",
+  "contact": {
+    "email": "Ziawang63@gmail.com",
+    "location": "Sunnyvale, CA",
+    "phone": "551-208-6589"
+  },
+  "target_role": "Senior Backend / Distributed Systems / AI Infrastructure Engineer",
+
+  "skills": {
+    "languages_frameworks": [
+      "Java",
+      "Python",
+      "Spring Boot",
+      "FastAPI",
+      "Flask",
+      "LangChain"
+    ],
+    "data_streaming": [
+      "Kafka",
+      "Spark",
+      "Cassandra",
+      "Azure SQL",
+      "DynamoDB",
+      "Aurora (RDS)",
+      "BigQuery"
+    ],
+    "cloud_devops": [
+      "AWS (EKS, Lambda, S3, SQS)",
+      "Azure",
+      "GCP",
+      "Kubernetes",
+      "Jenkins",
+      "Splunk",
+      "Prometheus",
+      "Grafana"
+    ]
+  },
+
+  "experience": [
+    {
+      "company": "Walmart / Sam’s Club",
+      "location": "Sunnyvale, CA",
+      "role": "Software Engineer",
+      "start": "Jul 2023",
+      "end": "Present",
+      "highlights": [
+        "Built a Python-based AI Agent system for compliance monitoring across Kubernetes microservices.",
+        "Aggregated signals from Kubernetes cluster state, service configuration, and Prometheus metrics.",
+        "Detected rule violations, config drift, latency spikes, and pod crashes."
+      ],
+      "projects": [
+        {
+          "name": "AI Agent Compliance Monitoring System",
+          "tech_stack": [
+            "Python",
+            "Kubernetes",
+            "Prometheus",
+            "LangChain",
+            "RAG",
+            "LLM"
+          ],
+          "details": [
+            "Designed a multi-source monitoring system using Kubernetes, Prometheus, and service config signals.",
+            "Implemented RAG pipeline using internal docs (Confluence, runbooks, config guides).",
+            "Built vector embeddings and semantic retrieval for root cause analysis.",
+            "Created tool-based agent execution layer to query infrastructure APIs.",
+            "Integrated tools for Kubernetes inspection, Prometheus queries, and internal endpoints.",
+            "Integrated agent into Item Gateway web portal for natural-language diagnostics."
+          ],
+          "impact": "Enabled automated incident diagnosis and compliance investigation using LLM-driven workflows."
+        },
+        {
+          "name": "Catalog Microservices & Data Pipeline",
+          "tech_stack": [
+            "Java",
+            "Spring Boot",
+            "Kafka",
+            "Spark",
+            "Cassandra",
+            "Azure"
+          ],
+          "details": [
+            "Built highly available microservices with Kafka producers/consumers.",
+            "Implemented safe replay mechanisms to avoid data loss.",
+            "Developed Spark pipelines to process high-throughput catalog signals.",
+            "Optimized Cassandra partition keys for scalable reads/writes."
+          ],
+          "impact": "Improved reliability and scalability of catalog processing pipelines."
+        },
+        {
+          "name": "Observability & Reliability System",
+          "tech_stack": [
+            "Kubernetes",
+            "Grafana",
+            "Prometheus",
+            "Splunk"
+          ],
+          "details": [
+            "Configured Kubernetes resource limits and health probes.",
+            "Built monitoring dashboards for latency, errors, and anomalies."
+          ],
+          "impact": "Improved service reliability and faster incident detection."
+        }
+      ]
+    },
+    {
+      "company": "Amazon",
+      "location": "Sunnyvale, CA",
+      "role": "Software Engineer",
+      "start": "Jul 2022",
+      "end": "Jun 2023",
+      "highlights": [
+        "Worked on large-scale billing systems processing billions of events daily.",
+        "Focused on distributed systems reliability and financial correctness."
+      ],
+      "projects": [
+        {
+          "name": "Billing Microservices System",
+          "tech_stack": [
+            "Java",
+            "Spring Boot",
+            "DynamoDB",
+            "Aurora RDS"
+          ],
+          "details": [
+            "Processed 1B+ daily events at 30K+ TPS.",
+            "Implemented JSON validation and backpressure.",
+            "Ensured exactly-once processing using DynamoDB conditional writes.",
+            "Optimized queries using composite indexes."
+          ],
+          "impact": "Eliminated duplicate billing and reduced query latency by 75%."
+        },
+        {
+          "name": "Event-Driven Data Pipeline",
+          "tech_stack": [
+            "AWS S3",
+            "Lambda",
+            "SQS"
+          ],
+          "details": [
+            "Built fault-tolerant ingestion pipeline.",
+            "Implemented retry with exponential backoff.",
+            "Used dead-letter queues for failure isolation."
+          ],
+          "impact": "Achieved zero data loss in ingestion pipeline."
+        },
+        {
+          "name": "EKS Deployment & Monitoring",
+          "tech_stack": [
+            "Kubernetes (EKS)",
+            "CloudWatch",
+            "JUnit",
+            "Mockito"
+          ],
+          "details": [
+            "Implemented zero-downtime deployment with traffic shifting.",
+            "Maintained 85%+ test coverage.",
+            "Built monitoring dashboards for SLO tracking."
+          ],
+          "impact": "Improved deployment safety and system observability."
+        }
+      ]
+    }
+  ],
+
+  "education": [
+    {
+      "school": "Stevens Institute of Technology",
+      "location": "Hoboken, NJ",
+      "degree": "M.S. Computer Science",
+      "year": "May 2020"
+    }
+  ]
+}

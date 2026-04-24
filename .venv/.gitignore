@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# env
+.env
+
+# Mac
+.DS_Store
+
+# temp audio
+*.wav
+*.webm
+
+# IDE
+.vscode/
+.idea/
