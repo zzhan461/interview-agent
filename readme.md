@@ -179,8 +179,7 @@ Streaming improves user experience significantly
 Voice UX requires latency optimization
 👤 Author
 
-Zia Wang
-
+Bruce Zhang
 Backend / Distributed Systems / AI Engineer
 Focus: LLM + Kubernetes + Observability + Data Systems
 
@@ -189,19 +188,3 @@ Focus: LLM + Kubernetes + Observability + Data Systems
 Give it a star ⭐
 
 
----
-
-# 🔥 最后建议（很重要）
-
-你 push 之前记得：
-
-- 把 `YOUR_USERNAME` 改掉
-- 确认 `.env` 没上传
-- 可以加一张截图（更加分）
-
----
-
-如果你愿意，我可以帮你再升级一个版本：
-
-👉 **“面试杀手级 README（带项目故事 + impact + metrics）”**  
-👉 或帮你写一段直接放简历里的 project description 👍
