@@ -29,29 +29,31 @@
 
 	<script>
 	let sessionId = null;
-	let recognition = null;
 	let isListening = false;
 	let ttsEnabled = false; // default: off (no spoken output)
+	let mediaStream = null;
+	let mediaRecorder = null;
+	let audioChunks = [];
 
 	// =========================
 	// 🔊 语音提示（新增）
 	function speak(text) {
 	    if (!ttsEnabled) return;
 	    const msg = new SpeechSynthesisUtterance(text);
-	    msg.lang = "zh-CN";
+	    msg.lang = "en-US";
 	    speechSynthesis.speak(msg);
 	}
 
-// =========================
-// 初始化 session
-async function init() {
+	// =========================
+	// 初始化 session
+	async function init() {
     const res = await fetch("/new-session");
     const data = await res.json();
     sessionId = data.session_id;
-}
-init();
+	}
+	init();
 
-// =========================
+	// =========================
 	async function send() {
 	    const input = document.getElementById("input");
 	    const text = input.value;
@@ -82,17 +84,17 @@ init();
 
     input.value = "";
 
-    // 🔊 自动读结果（可选）
-    speak(botDiv.innerText.substring(0, 80));
-}
+	    // 🔊 自动读结果（可选）
+	    speak(botDiv.innerText.substring(0, 80));
+	}
 
-// =========================
-function addMessage(text, type) {
+	// =========================
+	function addMessage(text, type) {
     const div = document.createElement("div");
     div.className = "msg " + type;
     div.innerText = text;
     document.getElementById("messages").appendChild(div);
-    return div;
+	    return div;
 	}
 
 	// =========================
@@ -106,73 +108,83 @@ function addMessage(text, type) {
 	}
 
 	// =========================
-	// 🎤 语音识别（强化版）
-	function setupRecognition() {
-	    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-	    if (!SpeechRecognition) {
-	        alert("Browser not supported");
-        return null;
-    }
-
-    const recog = new SpeechRecognition();
-
-    recog.lang = "zh-CN";   // 🔥 中文核心
-    recog.continuous = true;
-    recog.interimResults = true;
-
-    let finalText = "";
-
-    recog.onstart = () => {
-        speak("开始说话");
-    };
-
-    recog.onresult = (event) => {
-        let interim = "";
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            const t = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-                finalText += t;
-            } else {
-                interim += t;
-            }
-        }
-
-        document.getElementById("input").value = finalText + interim;
-    };
-
-    recog.onend = () => {
-        if (isListening) {
-            recog.start();
-        } else {
-            speak("识别结束");
-
-            setTimeout(() => {
-                if (document.getElementById("input").value.trim()) {
-                    send();
-                }
-            }, 300);
-        }
-    };
-
-    return recog;
+	function toggleVoice() {
+	    if (!isListening) {
+	        startRecording();
+	    } else {
+	        stopRecording();
+	    }
 	}
 
-	// =========================
-	function toggleVoice() {
-	    if (!recognition) {
-	        recognition = setupRecognition();
+	async function startRecording() {
+	    if (!navigator.mediaDevices?.getUserMedia) {
+	        alert("Browser not supported");
+	        return;
 	    }
+	    isListening = true;
+	    document.getElementById("voiceBtn").innerText = "🛑 Stop";
+	    speak("开始说话");
 
-    if (!isListening) {
-        isListening = true;
-        recognition.start();
-        document.getElementById("voiceBtn").innerText = "🛑 Stop";
-    } else {
-        isListening = false;
-        recognition.stop();
-        document.getElementById("voiceBtn").innerText = "🎤 Voice";
-    }
+	    audioChunks = [];
+	    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+	    // Try to prefer webm/opus (widely supported in Chromium). Safari may fall back.
+	    const opts = {};
+	    if (window.MediaRecorder && MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+	        opts.mimeType = "audio/webm;codecs=opus";
+	    }
+	    mediaRecorder = new MediaRecorder(mediaStream, opts);
+
+	    mediaRecorder.ondataavailable = (e) => {
+	        if (e.data && e.data.size > 0) audioChunks.push(e.data);
+	    };
+
+	    mediaRecorder.onstop = async () => {
+	        try {
+	            const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || "audio/webm" });
+	            const fd = new FormData();
+	            fd.append("audio", blob, "audio.webm");
+	            const res = await fetch("/transcribe", { method: "POST", body: fd });
+	            const data = await res.json();
+	            if (data?.text) {
+	                document.getElementById("input").value = data.text.trim();
+	                speak("识别结束");
+	                // Auto-send when we got something usable.
+	                if (document.getElementById("input").value.trim()) {
+	                    send();
+	                }
+	            } else {
+	                alert("Transcription failed");
+	            }
+	        } catch (err) {
+	            console.error(err);
+	            alert("Transcription error");
+	        } finally {
+	            // Release mic.
+	            if (mediaStream) {
+	                mediaStream.getTracks().forEach((t) => t.stop());
+	            }
+	            mediaStream = null;
+	            mediaRecorder = null;
+	            audioChunks = [];
+	        }
+	    };
+
+	    mediaRecorder.start();
+	}
+
+	function stopRecording() {
+	    isListening = false;
+	    document.getElementById("voiceBtn").innerText = "🎤 Voice";
+	    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+	        mediaRecorder.stop();
+	    } else {
+	        // If we never started properly, still release mic.
+	        if (mediaStream) mediaStream.getTracks().forEach((t) => t.stop());
+	        mediaStream = null;
+	        mediaRecorder = null;
+	        audioChunks = [];
+	    }
 	}
 	</script>
 	</body>

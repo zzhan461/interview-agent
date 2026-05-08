@@ -1,15 +1,25 @@
 import json
+import io
 import uuid
 from typing import Dict, List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from openai import OpenAI
 
 app = FastAPI()
-client = OpenAI()
+_client: OpenAI | None = None
+
+
+def get_client() -> OpenAI:
+    # Lazily initialize so the app can start even if OPENAI_API_KEY
+    # isn't set at import time.
+    global _client
+    if _client is None:
+        _client = OpenAI()
+    return _client
 
 # =========================
 # Load Resume
@@ -108,6 +118,18 @@ class ChatRequest(BaseModel):
     session_id: str
     message: str
 
+@app.post("/transcribe")
+async def transcribe(audio: UploadFile = File(...)):
+    data = await audio.read()
+    buf = io.BytesIO(data)
+    # The OpenAI SDK expects a file-like object with a name.
+    buf.name = audio.filename or "audio.webm"
+    result = get_client().audio.transcriptions.create(
+        model="whisper-1",
+        file=buf,
+    )
+    return {"text": result.text}
+
 @app.get("/new-session")
 def new_session():
     session_id = str(uuid.uuid4())
@@ -147,7 +169,7 @@ Respond in BOTH languages.
     def generate():
         full_reply = ""
 
-        stream = client.chat.completions.create(
+        stream = get_client().chat.completions.create(
             model="gpt-4.1-mini",
             messages=messages,
             stream=True,
