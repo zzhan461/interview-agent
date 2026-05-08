@@ -21,23 +21,26 @@
 
   <div id="messages"></div>
 
-  <input id="input" placeholder="Type or speak..." />
-  <button onclick="send()">Send</button>
-  <button id="voiceBtn" onclick="toggleVoice()">🎤 Voice</button>
-</div>
+	  <input id="input" placeholder="Type or speak..." />
+	  <button onclick="send()">Send</button>
+	  <button id="voiceBtn" onclick="toggleVoice()">🎤 Voice</button>
+	  <button id="ttsBtn" onclick="toggleTTS()">🔇 静音</button>
+	</div>
 
-<script>
-let sessionId = null;
-let recognition = null;
-let isListening = false;
+	<script>
+	let sessionId = null;
+	let recognition = null;
+	let isListening = false;
+	let ttsEnabled = false; // default: off (no spoken output)
 
-// =========================
-// 🔊 语音提示（新增）
-function speak(text) {
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = "zh-CN";
-    speechSynthesis.speak(msg);
-}
+	// =========================
+	// 🔊 语音提示（新增）
+	function speak(text) {
+	    if (!ttsEnabled) return;
+	    const msg = new SpeechSynthesisUtterance(text);
+	    msg.lang = "zh-CN";
+	    speechSynthesis.speak(msg);
+	}
 
 // =========================
 // 初始化 session
@@ -49,10 +52,10 @@ async function init() {
 init();
 
 // =========================
-async function send() {
-    const input = document.getElementById("input");
-    const text = input.value;
-    if (!text) return;
+	async function send() {
+	    const input = document.getElementById("input");
+	    const text = input.value;
+	    if (!text) return;
 
     addMessage(text, "user");
 
@@ -90,14 +93,24 @@ function addMessage(text, type) {
     div.innerText = text;
     document.getElementById("messages").appendChild(div);
     return div;
-}
+	}
 
-// =========================
-// 🎤 语音识别（强化版）
-function setupRecognition() {
-    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-    if (!SpeechRecognition) {
-        alert("Browser not supported");
+	// =========================
+	function toggleTTS() {
+	    ttsEnabled = !ttsEnabled;
+	    if (!ttsEnabled && window.speechSynthesis) {
+	        // Stop any ongoing speech immediately when muting.
+	        speechSynthesis.cancel();
+	    }
+	    document.getElementById("ttsBtn").innerText = ttsEnabled ? "🔊 朗读" : "🔇 静音";
+	}
+
+	// =========================
+	// 🎤 语音识别（强化版）
+	function setupRecognition() {
+	    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+	    if (!SpeechRecognition) {
+	        alert("Browser not supported");
         return null;
     }
 
@@ -143,13 +156,13 @@ function setupRecognition() {
     };
 
     return recog;
-}
+	}
 
-// =========================
-function toggleVoice() {
-    if (!recognition) {
-        recognition = setupRecognition();
-    }
+	// =========================
+	function toggleVoice() {
+	    if (!recognition) {
+	        recognition = setupRecognition();
+	    }
 
     if (!isListening) {
         isListening = true;
@@ -160,7 +173,7 @@ function toggleVoice() {
         recognition.stop();
         document.getElementById("voiceBtn").innerText = "🎤 Voice";
     }
-}
-</script>
-</body>
-</html>
+	}
+	</script>
+	</body>
+	</html>
